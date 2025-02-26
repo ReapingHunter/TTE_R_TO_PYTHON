@@ -87,6 +87,7 @@ trial_pp  <- expand_trials(trial_pp)
 trial_itt <- expand_trials(trial_itt)
 
 trial_pp@expansion
+trial_itt <- load_expanded_data(trial_itt, seed = 1234, p_control = 0.5)
 
 trial_itt <- fit_msm(
   trial_itt,
@@ -101,6 +102,8 @@ trial_itt@outcome_model
 trial_itt@outcome_model@fitted@model$model
 trial_itt@outcome_model@fitted@model$vcov
 
+trial_itt
+
 preds <- predict(
   trial_itt,
   newdata       = outcome_data(trial_itt)[trial_period == 1, ],
@@ -109,6 +112,6 @@ preds <- predict(
 )
 
 plot(preds$difference$followup_time, preds$difference$survival_diff,
-  type = "l", xlab = "Follow up", ylab = "Survival difference")
+     type = "l", xlab = "Follow up", ylab = "Survival difference")
 lines(preds$difference$followup_time, preds$difference$`2.5%`, type = "l", col = "red", lty = 2)
 lines(preds$difference$followup_time, preds$difference$`97.5%`, type = "l", col = "red", lty = 2)
