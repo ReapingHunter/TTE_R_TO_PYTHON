@@ -1,3 +1,5 @@
+library(TrialEmulation)
+
 trial_pp  <- trial_sequence(estimand = "PP")  # Per-protocol
 
 trial_itt <- trial_sequence(estimand = "ITT") # Intention-to-treat
