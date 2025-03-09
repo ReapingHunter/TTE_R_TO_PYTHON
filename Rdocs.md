@@ -1,4 +1,5 @@
-```
+### R code explanation
+```R
 library(TrialEmulation)
 
 trial_pp  <- trial_sequence(estimand = "PP")  # Per-protocol
@@ -10,7 +11,7 @@ Purpose: Initializes two target trial emulation frameworks:
 - PP (Per-Protocol): Analyzes subjects who adhered to the protocol
 - ITT (Intention-to-Treat): Analyzes all subjects as originally allocated
 
-```
+```R
 trial_pp_dir  <- file.path(tempdir(), "trial_pp")
 dir.create(trial_pp_dir)
 
@@ -23,7 +24,7 @@ Purpose: Creates temporary directories to store:
 - Intermediate results
 - Diagnostic outputs
 
-```
+```R
 data("data_censored") # dummy data in the package
 head(data_censored)
 ```
@@ -31,7 +32,7 @@ Purpose: Loads a synthetic dataset with:
 - Longitudinal patient records
 - Columns like id, period, treatment, outcome, censored, and covariates (age, x1, etc.)
 
-```
+```R
 # Per-protocol
 trial_pp <- trial_pp |>
   set_data(
@@ -63,7 +64,7 @@ Key Arguments:
 - eligible: Eligibility criteria indicator
 Purpose: Formalizes the data structure for emulation.
 
-```
+```R
 trial_pp <- trial_pp |>
   set_switch_weight_model(
     numerator    = ~ age,
@@ -76,7 +77,7 @@ Purpose: Models treatment switching using inverse probability weights (IPWs):
 - Numerator: Probability of treatment given baseline covariates (age)
 - Denominator: Probability of treatment given baseline + time-varying covariates (x1, x3)
 
-```
+```R
 trial_pp <- trial_pp |>
   set_censor_weight_model(
     censor_event = "censored",
@@ -101,7 +102,7 @@ Purpose: Models censoring using IPWs:
 - Numerator/Denominator: Similar logic to switch weights but for censoring events
 - pool_models: Determines whether models are pooled across time periods
 
-```
+```R
 trial_pp  <- trial_pp |> calculate_weights()
 trial_itt <- calculate_weights(trial_itt)
 ```
@@ -110,7 +111,7 @@ Purpose: Combines:
 - Censor weights (for loss to follow-up)
 Final weights = Switch Weights × Censor Weights
 
-```
+```R
 trial_pp  <- set_outcome_model(trial_pp)
 trial_itt <- set_outcome_model(trial_itt, adjustment_terms = ~x2)
 ```
@@ -118,7 +119,7 @@ Purpose: Specifies the outcome model (typically a survival model):
 - Adjusted for covariates (x2 in ITT)
 - Uses inverse probability weights to account for time-varying confounding
 
-```
+```R
 trial_pp <- set_expansion_options(
   trial_pp,
   output     = save_to_datatable(),
@@ -130,7 +131,7 @@ Purpose:
 - Clones patient records to emulate sequential trials
 - Processes data in chunks of 500 patients for memory efficiency
 
-```
+```R
 trial_itt <- fit_msm(
   trial_itt,
   weight_cols    = c("weight", "sample_weight"),
@@ -144,7 +145,7 @@ Purpose: Fits a Marginal Structural Model (MSM):
 - Uses Winsorization to handle extreme weights (trimming at 99th percentile)
 - Estimates causal treatment effects
 
-```
+```R
 preds <- predict(
   trial_itt,
   newdata       = outcome_data(trial_itt)[trial_period == 1, ],
