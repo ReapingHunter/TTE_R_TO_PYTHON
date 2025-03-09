@@ -36,23 +36,23 @@ data_censored = pd.DataFrame({
 print(data_censored.head())
 
 # ---------------------------
-# 2.5: Clustering Analysis on the Data using DBSCAN
+# 2.5: Clustering Analysis on the Data using Hierarchical Clustering
 # ---------------------------
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import AgglomerativeClustering
 from sklearn.decomposition import PCA
 
 # Select features for clustering (e.g., age, x1, x2, x3)
 features = data_censored[['age', 'x1', 'x2', 'x3']].values
 
-# Apply DBSCAN clustering
-# eps and min_samples can be tuned depending on the data characteristics
-dbscan = DBSCAN(eps=3, min_samples=5)  # Adjust eps as needed
-clusters = dbscan.fit_predict(features)
+# Apply Agglomerative Clustering (hierarchical clustering) with a specified number of clusters
+n_clusters = 3
+hierarchical_cluster = AgglomerativeClustering(n_clusters=n_clusters)
+clusters = hierarchical_cluster.fit_predict(features)
 
-# Add the cluster labels to the data frame
+# Add the cluster labels to the DataFrame
 data_censored['cluster'] = clusters
 
-print("Cluster assignments added to data (using DBSCAN):")
+print("Cluster assignments added to data (using hierarchical clustering):")
 print(data_censored[['id', 'age', 'x1', 'x2', 'x3', 'cluster']].head())
 
 # Visualize clusters using PCA to reduce dimensions to 2D for plotting
@@ -61,10 +61,10 @@ components = pca.fit_transform(features)
 
 plt.figure(figsize=(8, 6))
 scatter = plt.scatter(components[:, 0], components[:, 1], c=clusters, cmap='viridis', alpha=0.6)
-plt.title("PCA of Data with DBSCAN Clusters")
+plt.title("PCA of Data with Hierarchical Clusters")
 plt.xlabel("Principal Component 1")
 plt.ylabel("Principal Component 2")
-plt.colorbar(scatter, ticks=sorted(np.unique(clusters)), label="Cluster")
+plt.colorbar(scatter, ticks=range(n_clusters), label="Cluster")
 plt.show()
 
 # ---------------------------
